@@ -2,13 +2,13 @@
 (define-constant err-zero-tokens (err u201))
 
 ;; Get contract STX balance
-(define-private (get-stx-balance)
+(define-read-only (get-stx-balance)
   (stx-get-balance (as-contract tx-sender))
 )
 
 ;; Get contract token balance
-(define-private (get-token-balance)
-  (contract-call? .magic-beans get-balance (as-contract tx-sender))
+(define-read-only (get-token-balance)
+  (contract-call? .magic-beans-v1 get-balance (as-contract tx-sender))
 )
 
 ;; Provide initial liquidity, defining the initial exchange ratio
@@ -17,7 +17,7 @@
       ;; send STX from tx-sender to the contract
       (try! (stx-transfer? stx-amount tx-sender (as-contract tx-sender)))
       ;; send tokens from tx-sender to the contract
-      (contract-call? .magic-beans transfer token-amount tx-sender (as-contract tx-sender))
+      (contract-call? .magic-beans-v1 transfer token-amount tx-sender (as-contract tx-sender))
     )
 )
 
@@ -34,7 +34,7 @@
       ;; transfer STX from liquidity provider to contract
       (try! (stx-transfer? stx-amount tx-sender contract-address))
       ;; transfer tokens from liquidity provider to contract
-      (contract-call? .magic-beans transfer tokens-to-transfer tx-sender contract-address)
+      (contract-call? .magic-beans-v1 transfer tokens-to-transfer tx-sender contract-address)
     )
   )
 )
@@ -75,7 +75,7 @@
         ;; transfer STX from user to contract
         (try! (stx-transfer? stx-amount user-address contract-address))
         ;; transfer tokens from contract to user
-        (as-contract (contract-call? .magic-beans transfer tokens-to-pay contract-address user-address))
+        (as-contract (contract-call? .magic-beans-v1 transfer tokens-to-pay contract-address user-address))
       )
     )
   )
@@ -102,7 +102,7 @@
     )
       (begin
         ;; transfer tokens from user to contract
-        (try! (contract-call? .magic-beans transfer token-amount user-address contract-address))
+        (try! (contract-call? .magic-beans-v1 transfer token-amount user-address contract-address))
         ;; transfer tokens from contract to user
         (as-contract (stx-transfer? stx-to-pay contract-address user-address))
       )

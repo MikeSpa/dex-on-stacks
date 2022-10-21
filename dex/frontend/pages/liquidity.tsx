@@ -12,11 +12,16 @@ import { AppConfig, showConnect, UserData, UserSession } from "@stacks/connect";
 
 import { createAssetInfo, FungibleConditionCode, makeStandardFungiblePostCondition, makeStandardSTXPostCondition, uintCV } from "@stacks/transactions";
 // import { useStacks } from "../providers/StacksProvider";
+import fetchExchangeInfo from "../lib/fetchExchangeInfo";
+import { ExchangeInfo } from "../lib/fetchExchangeInfo";
+
 
 
 export default function LiquidityPage() {
     const { addTransactionToast } = useTransactionToasts()
+    const [exchangeInfo, setExchangeInfo] = useState<ExchangeInfo | undefined>(undefined)
     // const { network, address } = useStacks()
+    const network = new StacksTestnet()
     const [userData, setUserData] = useState<UserData | undefined>(undefined);
     const address = userData?.profile?.stxAddress?.testnet
 
@@ -34,6 +39,22 @@ export default function LiquidityPage() {
         }
     }, []);
 
+
+    const exchangeRatio = exchangeInfo && exchangeInfo.stxBalance ? exchangeInfo.tokenBalance / exchangeInfo.stxBalance : undefined
+
+    const fetchExchangeInfoOnLoad = async () => {
+        if (!address) {
+            console.log("Can't fetch exchange info without sender address")
+            return
+        }
+
+        const exchangeInfo = await fetchExchangeInfo(network, address)
+        setExchangeInfo(exchangeInfo)
+    }
+
+    useEffect(() => {
+        fetchExchangeInfoOnLoad()
+    }, [address])
 
     const provideLiquidity = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -83,11 +104,25 @@ export default function LiquidityPage() {
         await openContractCall(options)
     }
 
+    const makeExchangeRatioSection = () => {
+        if (!exchangeInfo) {
+            return <p>Fetching exchange data...</p>
+        }
+        if (!exchangeRatio) {
+            return <p>No liquidity yet!</p>
+        }
+
+        // toFixed(6) rounds to 6 decimal places, the + removes trailing 0s. Eg. 0.050000 -> 0.05
+        return <p>1 STX = <b>{+exchangeRatio.toFixed(6)}</b> Magic Beans</p>
+    }
+
     return (
         <div className="flex flex-col items-stretch max-w-4xl gap-8 m-auto">
             <PageHeading>Provide Liquidity</PageHeading>
 
             <Auth />
+
+            {makeExchangeRatioSection()}
 
             <form className="flex flex-row items-end gap-4" onSubmit={provideLiquidity}>
                 <div>
