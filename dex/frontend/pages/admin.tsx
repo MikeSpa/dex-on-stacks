@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { ContractCallRegularOptions, openContractCall, UserData } from "@stacks/connect";
-import { StacksMocknet } from "@stacks/network";
+import { StacksTestnet } from "@stacks/network";
 import { standardPrincipalCV, uintCV } from "@stacks/transactions";
 
 
@@ -24,7 +24,7 @@ export default function AdminPage() {
         e.preventDefault()
         console.log(`Minting ${mintAmount} of ${exchangeToken}`)
 
-        const network = new StacksMocknet()
+        const network = new StacksTestnet()
 
         // (contract-call? .magic-beans mint u1000000 tx-sender)
         const options: ContractCallRegularOptions = {
