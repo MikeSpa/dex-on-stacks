@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
-
-import { AppConfig, UserSession, showConnect } from '@stacks/connect';
-
-const appConfig = new AppConfig(['publish_data']);
-const userSession = new UserSession({ appConfig });
+import { AppConfig, UserSession, showConnect } from "@stacks/connect";
 
 export default function Home() {
+  const appConfig = new AppConfig(["publish_data"]);
+  const userSession = new UserSession({ appConfig });
+
   const [message, setMessage] = useState("");
-  const [price, setPrice] = useState(5);
+  const [price, setPrice] = useState(10);
   const [userData, setUserData] = useState({});
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -58,41 +57,46 @@ export default function Home() {
       </Head>
 
       <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <div className="flex w-full items-end justify-center">
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-6"
-            onClick={() => authenticate()}
-          >
-            Connect to Wallet
-          </button>
+        <div className="flex flex-col w-full items-center justify-center">
+          <h1 className="text-6xl font-bold mb-24">Sup</h1>
+
+          {loggedIn ? ( // if login then form else connect button
+            <form onSubmit={handleSubmit}>
+              <p>
+                Say
+                <input
+                  className="p-6 border rounded mx-2"
+                  type="text"
+                  value={message}
+                  onChange={handleMessageChange}
+                  placeholder="something"
+                />
+                for
+                <input
+                  className="p-6 border rounded mx-2"
+                  type="number"
+                  value={price}
+                  onChange={handlePriceChange}
+                />{" "}
+                STX
+              </p>
+              <button
+                type="submit"
+                className="p-6 bg-green-500 text-white mt-8 rounded"
+              >
+                Post Message
+              </button>
+            </form>
+          ) : (
+
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-6"
+              onClick={() => authenticate()}
+            >
+              Connect to Wallet
+            </button>
+          )}
         </div>
-        <h1 className="text-6xl font-bold mb-24">Sup</h1>
-        <form onSubmit={handleSubmit}>
-          <p>
-            Say
-            <input
-              className="p-6 border rounded mx-2"
-              type="text"
-              value={message}
-              onChange={handleMessageChange}
-              placeholder="something"
-            />
-            for
-            <input
-              className="p-6 border rounded mx-2"
-              type="number"
-              value={price}
-              onChange={handlePriceChange}
-            />{" "}
-            STX
-          </p>
-          <button
-            type="submit"
-            className="p-6 bg-green-500 text-white mt-8 rounded"
-          >
-            Post Message
-          </button>
-        </form>
       </main>
     </div>
   );
