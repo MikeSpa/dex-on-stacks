@@ -9,3 +9,7 @@
 ![Providing Liquidity](img/providing_liquidity.png "Providing Liquidity")
 
 ![Liquidity](img/liquidity.png "Liquidity")
+
+## Swap
+
+![Swap](img/swap.png "Swap")

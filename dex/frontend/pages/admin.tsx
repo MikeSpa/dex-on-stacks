@@ -60,7 +60,7 @@ export default function AdminPage() {
                             id="exchange-token"
                             onChange={(e) => setExchangeToken(e.target.value)}
                             className="block w-full p-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                            placeholder="some-token"
+                            placeholder="fungible oken"
                         />
                     </div>
                 </div>

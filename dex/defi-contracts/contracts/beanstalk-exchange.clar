@@ -1,6 +1,8 @@
 (define-constant err-zero-stx (err u200))
 (define-constant err-zero-tokens (err u201))
 
+
+;; ####################   GETTER   #################
 ;; Get contract STX balance
 (define-read-only (get-stx-balance)
   (stx-get-balance (as-contract tx-sender))
@@ -10,6 +12,9 @@
 (define-read-only (get-token-balance)
   (contract-call? .magic-beans-v1 get-balance (as-contract tx-sender))
 )
+
+
+;; ####################   LIQUIDITY   #################
 
 ;; Provide initial liquidity, defining the initial exchange ratio
 (define-private (provide-liquidity-first (stx-amount uint) (token-amount uint))
@@ -39,7 +44,10 @@
   )
 )
 
+
 ;; Anyone can provide liquidity by transferring STX and tokens to the contract
+;; if no STX on contract, add STX and token with wanted amount ratio
+;; else add wanted amounts of STX, and corresponding token amount
 (define-public (provide-liquidity (stx-amount uint) (max-token-amount uint))
   (begin
     (asserts! (> stx-amount u0) err-zero-stx)
@@ -51,6 +59,10 @@
     )
   )
 )
+
+
+;; ####################   SWAP   #################
+
 
 ;; Allow users to exchange STX and receive tokens at the current exchange rate
 (define-public (stx-to-token-swap (stx-amount uint))

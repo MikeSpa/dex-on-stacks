@@ -104,8 +104,56 @@ export default function LiquidityPage() {
         await openContractCall(options)
     }
 
+    // const provideLiquiditySTX = async (e: React.FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault()
+
+    //     if (!address) {
+    //         console.error("Must be logged in to provide liquidity")
+    //         return
+    //     }
+
+    //     console.log("Providing liquidity...")
+
+    //     const network = new StacksTestnet()
+
+    //     // (contract-call? .beanstalk-exchange provide-liquidity u1000 u2000)
+    //     const stxAmount = (e.currentTarget.elements.namedItem("stx-amount") as HTMLInputElement).valueAsNumber
+    //     const microstacksAmount = stxAmount * microstacksPerSTX
+
+    //     const tokenAmount = microstacksAmount * exchangeRatio.toFixed(6)
+
+    //     const stxPostCondition = makeStandardSTXPostCondition(
+    //         address,
+    //         FungibleConditionCode.Equal,
+    //         microstacksAmount,
+    //     )
+
+    //     const tokenPostCondition = makeStandardFungiblePostCondition(
+    //         address,
+    //         FungibleConditionCode.Equal,
+    //         tokenAmount,
+    //         createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans')
+    //     )
+
+    //     const options: ContractCallRegularOptions = {
+    //         contractAddress: contractOwnerAddress,
+    //         contractName: exchangeContractName,
+    //         functionName: 'provide-liquidity',
+    //         functionArgs: [
+    //             uintCV(microstacksAmount),
+    //             uintCV(tokenAmount),
+    //         ],
+    //         postConditions: [stxPostCondition, tokenPostCondition],
+    //         network,
+    //         appDetails,
+    //         onFinish: ({ txId }) => addTransactionToast(txId, `Providing liquidity (${stxAmount} STX)...`),
+    //     }
+
+    //     await openContractCall(options)
+    // }
+
     const makeExchangeRatioSection = () => {
-        console.log(exchangeInfo)
+        // console.log(exchangeInfo)
         if (!exchangeInfo) {
             return <p>Fetching exchange data...</p>
         }
@@ -114,10 +162,17 @@ export default function LiquidityPage() {
         }
 
         // toFixed(6) rounds to 6 decimal places, the + removes trailing 0s. Eg. 0.050000 -> 0.05
-        return <p>1 STX = <b>{+exchangeRatio.toFixed(6)}</b> Magic Beans</p>
+        return <div>
+            <p>Current balance: <b>{+exchangeInfo.stxBalance.toFixed(6)}</b> STX and <b>{+exchangeInfo.tokenBalance.toFixed(6)}</b> Magic Beans</p>
+            <p>1 STX = <b>{+exchangeRatio.toFixed(6)}</b> Magic Beans</p>
+            <p>Make sure to add the same ratio.</p>
+        </div>
     }
-
-    return (
+    if (!exchangeRatio) {
+        return <p>No liquidity yet!</p>
+    }
+    // if (!exchangeRatio) { // if already liquidity, change the form to one with only input is STX (and give the amount of token required)
+    return ( //no liquidity
         <div className="flex flex-col items-stretch max-w-4xl gap-8 m-auto">
             <PageHeading>Provide Liquidity</PageHeading>
 
@@ -133,7 +188,7 @@ export default function LiquidityPage() {
                     <div className="mt-1">
                         <NumberInput
                             name="stx-amount"
-                            placeholder={123}
+                            placeholder={1}
                             required={true}
                             decimals={6}
                         />
@@ -147,7 +202,7 @@ export default function LiquidityPage() {
                     <div className="mt-1">
                         <NumberInput
                             name="token-amount"
-                            placeholder={456}
+                            placeholder={Number(exchangeRatio.toFixed(6))}//TODO test when no liquidity
                             required={true}
                             decimals={0}
                         />
@@ -160,4 +215,50 @@ export default function LiquidityPage() {
             </form>
         </div>
     )
+    // } else { //liquidity
+    //     return (
+    //         <div className="flex flex-col items-stretch max-w-4xl gap-8 m-auto">
+    //             <PageHeading>Provide Liquidity</PageHeading>
+
+    //             <Auth />
+
+    //             {makeExchangeRatioSection()}
+
+    //             <form className="flex flex-row items-end gap-4" onSubmit={provideLiquiditySTX}>
+    //                 <div>
+    //                     <label htmlFor="stx-amount" className="block text-sm font-medium text-gray-700">
+    //                         STX to provide
+    //                     </label>
+    //                     <div className="mt-1">
+    //                         <NumberInput
+    //                             name="stx-amount"
+    //                             placeholder={123}
+    //                             required={true}
+    //                             decimals={6}
+    //                         />
+    //                     </div>
+    //                 </div>
+
+    //                 {/* <div>
+    //                     <label htmlFor="token" className="block text-sm font-medium text-gray-700">
+    //                         Magic Beans to provide
+    //                     </label>
+    //                     <div className="mt-1">
+    //                         <NumberInput
+    //                             name="token-amount"
+    //                             placeholder={456}
+    //                             required={true}
+    //                             decimals={0}
+    //                         />
+    //                     </div>
+    //                 </div> */}
+
+    //                 <ActionButton type="submit">
+    //                     Provide Liquidity
+    //                 </ActionButton>
+    //             </form>
+    //         </div>
+    //     )
+    // }
+
 }
