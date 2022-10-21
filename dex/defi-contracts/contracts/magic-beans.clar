@@ -6,10 +6,16 @@
 (define-constant err-owner-only (err u100))
 (define-constant err-amount-zero (err u101))
 
+(define-read-only (get-balance (who principal))
+  (ft-get-balance magic-beans who)
+)
+
+
 ;; Custom function to mint tokens, only available to the contract owner
 (define-public (mint (amount uint) (who principal))
   (begin
     (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (asserts! (> amount u0) err-amount-zero)
     ;; amount, who are unchecked, but we let the contract owner mint to whoever they like for convenience
     ;; #[allow(unchecked_data)]
     (ft-mint? magic-beans amount who)
