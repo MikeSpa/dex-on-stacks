@@ -73,18 +73,17 @@ export default function SwapPage() {
             microstacks
         )
 
-        const tokenPostCondition = makeContractFungiblePostCondition(
-            contractOwnerAddress,
-            exchangeContractName,
-            FungibleConditionCode.GreaterEqual,
-            0,
-            createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
-        )
-
         const minimumExchangeRateMultiple = 1 - (priceSlippage / 100)
         const minimumExchangeRate = exchangeRatio * minimumExchangeRateMultiple
         const minimumTokens = (microstacks * minimumExchangeRate).toFixed(0)
 
+        const tokenPostCondition = makeContractFungiblePostCondition(
+            contractOwnerAddress,
+            exchangeContractName,
+            FungibleConditionCode.GreaterEqual,
+            minimumTokens,
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
+        )
 
         const options: ContractCallRegularOptions = {
             contractAddress: contractOwnerAddress,
@@ -112,7 +111,7 @@ export default function SwapPage() {
             address,
             FungibleConditionCode.Equal,
             tokenAmount,
-            createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
         )
 
         const minimumExchangeRateMultiple = 1 - (priceSlippage / 100)

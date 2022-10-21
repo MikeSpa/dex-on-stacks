@@ -84,7 +84,7 @@ export default function LiquidityPage() {
             address,
             FungibleConditionCode.Equal,
             tokenAmount,
-            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans')
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
         )
 
         const options: ContractCallRegularOptions = {
