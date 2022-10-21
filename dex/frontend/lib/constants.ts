@@ -7,5 +7,6 @@ export const appDetails: AuthOptions["appDetails"] = {
 
 export const contractOwnerAddress = "ST28AR7Q1DQ3Z7QG0A8GY9JZVDWJ4XSSXBA05S0C1"// testnet Acc2 "deployer"
 
+export const tokenName = "magic-beans-v1"
 export const exchangeContractName = "beanstalk-exchange-v1"
 export const microstacksPerSTX = 1_000_000

@@ -84,7 +84,7 @@ export default function LiquidityPage() {
             address,
             FungibleConditionCode.Equal,
             tokenAmount,
-            createAssetInfo(contractOwnerAddress, 'magic-beans', 'magic-beans')
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans')
         )
 
         const options: ContractCallRegularOptions = {
@@ -105,6 +105,7 @@ export default function LiquidityPage() {
     }
 
     const makeExchangeRatioSection = () => {
+        console.log(exchangeInfo)
         if (!exchangeInfo) {
             return <p>Fetching exchange data...</p>
         }
