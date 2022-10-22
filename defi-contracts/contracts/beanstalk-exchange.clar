@@ -3,19 +3,24 @@
 (define-constant contract-owner tx-sender)
 (define-constant err-zero-stx (err u200))
 (define-constant err-zero-tokens (err u201))
-(define-constant err-owner-only (err u202))
+(define-constant err-majority-only (err u202))
 
-;; (define-constant fee-basis-points u30) ;; 0.3%
 
 (define-data-var fee-basis-points uint u30);; 0.3%
-;; ;; Change the fee to , can only be called the current minter
-;; (define-public (set-fee (fee uint))
-;;   (begin
-;;     (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-;;     ;; #[allow(unchecked_data)]
-;;     (ok (var-set fee-basis-points fee))
-;;   )
-;; )
+
+;; Change the fee to fee, can only be called by a user who possess more than 50% of LP-token
+(define-public (set-fee (fee uint))
+  (let (
+        (supply (contract-call? .magic-beans-lp get-total-supply ))
+        (balance-sender (contract-call? .magic-beans-lp get-balance tx-sender ))
+      )
+      (begin
+      (asserts! (> balance-sender (/ supply u2)) err-majority-only)
+      ;; #[allow(unchecked_data)]
+      (ok (var-set fee-basis-points fee))
+    )
+  )
+)
 
 ;; ####################   GETTER   #################
 ;; Get contract STX balance
@@ -28,6 +33,7 @@
   (contract-call? .magic-beans get-balance (as-contract tx-sender))
 )
 
+;; Get fee
 (define-read-only (get-fee) 
     (ok (var-get fee-basis-points))
 )
