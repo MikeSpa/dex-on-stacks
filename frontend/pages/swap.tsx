@@ -82,7 +82,7 @@ export default function SwapPage() {
             exchangeContractName,
             FungibleConditionCode.GreaterEqual,
             minimumTokens,
-            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v2', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
         )
 
         const options: ContractCallRegularOptions = {
@@ -111,7 +111,7 @@ export default function SwapPage() {
             address,
             FungibleConditionCode.Equal,
             tokenAmount,
-            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v2', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
         )
 
         const minimumExchangeRateMultiple = 1 - (priceSlippage / 100)

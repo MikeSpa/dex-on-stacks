@@ -10,11 +10,11 @@ import { microstacksPerSTX, contractOwnerAddress, exchangeContractName, appDetai
 import { useEffect, useState } from "react";
 import { AppConfig, showConnect, UserData, UserSession } from "@stacks/connect";
 
-import { createAssetInfo, FungibleConditionCode, makeStandardFungiblePostCondition, makeStandardSTXPostCondition, uintCV } from "@stacks/transactions";
-// import { useStacks } from "../providers/StacksProvider";
+import { createAssetInfo, FungibleConditionCode, makeContractFungiblePostCondition, makeContractSTXPostCondition, makeStandardFungiblePostCondition, makeStandardSTXPostCondition, uintCV } from "@stacks/transactions";// import { useStacks } from "../providers/StacksProvider";
 import fetchExchangeInfo from "../lib/fetchExchangeInfo";
 import { ExchangeInfo } from "../lib/fetchExchangeInfo";
 
+import SectionHeading from "../components/SectionHeading";
 
 
 export default function LiquidityPage() {
@@ -84,7 +84,7 @@ export default function LiquidityPage() {
             address,
             FungibleConditionCode.Equal,
             tokenAmount,
-            createAssetInfo(contractOwnerAddress, 'magic-beans-v1', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
+            createAssetInfo(contractOwnerAddress, 'magic-beans-v2', 'magic-beans') //name of token contract (deployed on testnet) and name of token (in define-fungible-token ???)
         )
 
         const options: ContractCallRegularOptions = {
@@ -99,6 +99,68 @@ export default function LiquidityPage() {
             network,
             appDetails,
             onFinish: ({ txId }) => addTransactionToast(txId, `Providing liquidity (${stxAmount} STX)...`),
+        }
+
+        await openContractCall(options)
+    }
+
+    const removeLiquidity = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        console.log("Removing liquidity...")
+
+        if (!address || !exchangeInfo) {
+            console.error("Address and exchangeInfo are required for removeLiquidity")
+            return
+        }
+
+        // (contract-call? .my-exchange remove-liquidity u5000)
+        const burnAmount = (e.currentTarget.elements.namedItem("burn-amount") as HTMLInputElement).valueAsNumber
+
+        // Our LP token has 6 decimals
+
+        const functionArgs = [
+            uintCV(burnAmount),
+        ]
+
+        const burnPostCondition = makeStandardFungiblePostCondition(
+            address,
+            FungibleConditionCode.Equal,
+            burnAmount,
+            createAssetInfo(contractOwnerAddress, "magic-beans-lp-v2", "magic-beans-lp"),
+        )
+
+        // Since we don't know exactly how much STX/tokens, just say >0 
+        // Optionally you could extend `fetchExchangeInfo` to get the number, and then use that to calculate the amount
+        // Could also add another input and let the user set what they expect! 
+        const stxPostCondition = makeContractSTXPostCondition(
+            contractOwnerAddress,
+            exchangeContractName,
+            FungibleConditionCode.Greater,
+            0
+        )
+
+        const tokenPostCondition = makeContractFungiblePostCondition(
+            contractOwnerAddress,
+            exchangeContractName,
+            FungibleConditionCode.Greater,
+            0,
+            createAssetInfo(contractOwnerAddress, "magic-beans-v2", "magic-beans"),
+        )
+
+        const options: ContractCallRegularOptions = {
+            contractAddress: contractOwnerAddress,
+            contractName: exchangeContractName,
+            functionName: 'remove-liquidity',
+            functionArgs,
+            postConditions: [burnPostCondition, stxPostCondition, tokenPostCondition],
+            network,
+            appDetails,
+            onFinish: ({ txId }) => {
+                addTransactionToast(
+                    txId,
+                    `Burning liquidity (${burnAmount.toLocaleString()} MAGIC-LP)...`,
+                )
+            }
         }
 
         await openContractCall(options)
@@ -123,45 +185,73 @@ export default function LiquidityPage() {
     }
     return (
         <div className="flex flex-col items-stretch max-w-4xl gap-8 m-auto">
-            <PageHeading>Provide Liquidity</PageHeading>
+            <PageHeading>Liquidity</PageHeading>
 
             <Auth />
 
-            {makeExchangeRatioSection()}
+            <section className="flex flex-col gap-8">
+                <SectionHeading>Provide Liquidity</SectionHeading>
 
-            <form className="flex flex-row items-end gap-4" onSubmit={provideLiquidity}>
-                <div>
-                    <label htmlFor="stx-amount" className="block text-sm font-medium text-gray-700">
-                        STX to provide
-                    </label>
-                    <div className="mt-1">
-                        <NumberInput
-                            name="stx-amount"
-                            placeholder={1}
-                            required={true}
-                            decimals={6}
-                        />
+                {makeExchangeRatioSection()}
+
+                <form className="flex flex-row items-end gap-4" onSubmit={provideLiquidity}>
+                    <div>
+                        <label htmlFor="stx-amount" className="block text-sm font-medium text-gray-700">
+                            STX to provide
+                        </label>
+                        <div className="mt-1">
+                            <NumberInput
+                                name="stx-amount"
+                                placeholder={0}
+                                required={true}
+                                decimals={6}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div>
-                    <label htmlFor="token" className="block text-sm font-medium text-gray-700">
-                        Magic Beans to provide
-                    </label>
-                    <div className="mt-1">
-                        <NumberInput
-                            name="token-amount"
-                            placeholder={0}
-                            required={true}
-                            decimals={0}
-                        />
+                    <div>
+                        <label htmlFor="token" className="block text-sm font-medium text-gray-700">
+                            Magic Beans to provide
+                        </label>
+                        <div className="mt-1">
+                            <NumberInput
+                                name="token-amount"
+                                placeholder={0}
+                                required={true}
+                                decimals={0}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <ActionButton type="submit">
-                    Provide Liquidity
-                </ActionButton>
-            </form>
+                    <ActionButton type="submit">
+                        Provide Liquidity
+                    </ActionButton>
+                </form>
+            </section>
+
+            <section className="flex flex-col gap-8">
+                <SectionHeading>Remove Liquidity</SectionHeading>
+
+                <form className="flex flex-row items-end gap-4" onSubmit={removeLiquidity}>
+                    <div>
+                        <label htmlFor="burn-amount" className="block text-sm font-medium text-gray-700">
+                            MAGIC-LP to burn
+                        </label>
+                        <div className="mt-1">
+                            <NumberInput
+                                name="burn-amount"
+                                placeholder={0}
+                                required={true}
+                                decimals={0}
+                            />
+                        </div>
+                    </div>
+
+                    <ActionButton type="submit">
+                        Remove Liquidity
+                    </ActionButton>
+                </form>
+            </section>
         </div>
     )
 
