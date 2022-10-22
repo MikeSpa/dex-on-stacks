@@ -1,20 +1,20 @@
 ;; magic-beans-lp
+;; LP token for magic-beans
 (define-fungible-token magic-beans-lp)
 
-;; errores
+;; errors
 (define-constant err-minter-only (err u300))
 (define-constant err-amount-zero (err u301))
 
-;; data
+;; DATA
 (define-data-var allowed-minter principal tx-sender)
 
-;; read-only
-(define-read-only (get-decimals) 
-  (ok u6)
-)
-
+;; GETTER
 (define-read-only (get-symbol)
   (ok "MAGIC-LP")
+)
+(define-read-only (get-decimals) 
+  (ok u6)
 )
 
 (define-read-only (get-balance (who principal))
@@ -25,7 +25,7 @@
   (ft-get-supply magic-beans-lp)
 )
 
-;;public methods
+;; MINT AND BURN
 
 ;; Change the minter to any other principal, can only be called the current minter
 (define-public (set-minter (who principal))

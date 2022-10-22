@@ -1,7 +1,21 @@
+;; beanstalk-exchange
+;; DEX STX <-> magic-beans (with magic-beans-lp)
+(define-constant contract-owner tx-sender)
 (define-constant err-zero-stx (err u200))
 (define-constant err-zero-tokens (err u201))
+(define-constant err-owner-only (err u202))
 
-(define-constant fee-basis-points u30) ;; 0.3%
+;; (define-constant fee-basis-points u30) ;; 0.3%
+
+(define-data-var fee-basis-points uint u30);; 0.3%
+;; ;; Change the fee to , can only be called the current minter
+;; (define-public (set-fee (fee uint))
+;;   (begin
+;;     (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+;;     ;; #[allow(unchecked_data)]
+;;     (ok (var-set fee-basis-points fee))
+;;   )
+;; )
 
 ;; ####################   GETTER   #################
 ;; Get contract STX balance
@@ -12,6 +26,10 @@
 ;; Get contract token balance
 (define-read-only (get-token-balance)
   (contract-call? .magic-beans get-balance (as-contract tx-sender))
+)
+
+(define-read-only (get-fee) 
+    (ok (var-get fee-basis-points))
 )
 
 
@@ -65,13 +83,13 @@
 ;; Anyone can provide liquidity by transferring STX and tokens to the contract
 ;; if no STX on contract, add STX and token with wanted amount ratio
 ;; else add wanted amounts of STX, and corresponding token amount
-(define-public (provide-liquidity (stx-amount uint) (max-token-amount uint))
+(define-public (provide-liquidity (stx-amount uint) (token-amount uint))
   (begin
     (asserts! (> stx-amount u0) err-zero-stx)
-    (asserts! (> max-token-amount u0) err-zero-tokens)
+    (asserts! (> token-amount u0) err-zero-tokens)
 
     (if (is-eq (get-stx-balance) u0) 
-      (provide-liquidity-first stx-amount max-token-amount tx-sender)
+      (provide-liquidity-first stx-amount token-amount tx-sender)
       (provide-liquidity-additional stx-amount)
     )
   )
@@ -124,7 +142,7 @@
       ;; constant to maintain = STX * tokens
       (constant (* stx-balance token-balance))
       ;; charge the fee. Fee is in basis points (1 = 0.01%), so divide by 10,000
-      (fee (/ (* stx-amount fee-basis-points) u10000))
+      (fee (/ (* stx-amount (var-get fee-basis-points)) u10000))
       (new-stx-balance (+ stx-balance stx-amount))
       ;; constant should = (new STX - fee) * new tokens
       (new-token-balance (/ constant (- new-stx-balance fee)))
@@ -155,7 +173,7 @@
       ;; constant to maintain = STX * tokens
       (constant (* stx-balance token-balance))
       ;; charge the fee. Fee is in basis points (1 = 0.01%), so divide by 10,000
-      (fee (/ (* token-amount fee-basis-points) u10000))
+      (fee (/ (* token-amount (var-get fee-basis-points)) u10000))
       (new-token-balance (+ token-balance token-amount))
       ;; constant should = new STX * (new tokens - fee)
       (new-stx-balance (/ constant (- new-token-balance fee)))
