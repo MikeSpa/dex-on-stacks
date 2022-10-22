@@ -6,6 +6,10 @@
 (define-constant err-owner-only (err u100))
 (define-constant err-amount-zero (err u101))
 
+(define-read-only (get-symbol)
+  (ok "MAGIC")
+)
+
 (define-read-only (get-balance (who principal))
   (ft-get-balance magic-beans who)
 )
