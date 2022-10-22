@@ -13,6 +13,9 @@
 (define-read-only (get-balance (who principal))
   (ft-get-balance magic-beans who)
 )
+(define-read-only (get-total-supply)
+  (ft-get-supply magic-beans)
+)
 
 
 ;; Custom function to mint tokens, only available to the contract owner

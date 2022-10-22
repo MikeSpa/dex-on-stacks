@@ -1,4 +1,4 @@
-;; contracts/magic-beans-lp.clar
+;; magic-beans-lp
 (define-fungible-token magic-beans-lp)
 
 ;; errores
@@ -15,6 +15,10 @@
 
 (define-read-only (get-symbol)
   (ok "MAGIC-LP")
+)
+
+(define-read-only (get-balance (who principal))
+  (ft-get-balance magic-beans-lp who)
 )
 
 (define-read-only (get-total-supply)
@@ -45,6 +49,7 @@
 )
 
 ;; Any user can burn any amount of their own tokens
+;; returns (ok true) or (err 1)
 (define-public (burn (amount uint))
   (ft-burn? magic-beans-lp amount tx-sender)
 )

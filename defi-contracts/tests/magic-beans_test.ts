@@ -32,6 +32,9 @@ Clarinet.test({
         end_balance_wallet1.result.expectUint(8);
         block.receipts[2].result.expectErr().expectUint(err_owner_only)
 
+        let total_supply = chain.callReadOnlyFn('magic-beans', 'get-total-supply', [], deployer.address);
+        total_supply.result.expectUint(1000 + 8);
+
     },
 });
 
@@ -73,6 +76,24 @@ Clarinet.test({
         end_balance_wallet2.result.expectUint(2000);
         block.receipts[3].result.expectErr().expectUint(err_amount_zero)
         block.receipts[4].result.expectErr().expectUint(err_owner_only)
+
+        let total_supply = chain.callReadOnlyFn('magic-beans', 'get-total-supply', [], deployer.address);
+        total_supply.result.expectUint(1000000);
+
+    },
+});
+
+Clarinet.test({
+    name: "Ensure that get-symbol works",
+    async fn(chain: Chain, accounts: Map<string, Account>) {
+
+        let deployer = accounts.get('deployer')!;
+        let wallet1 = accounts.get("wallet_1")!;
+        let wallet2 = accounts.get("wallet_2")!;
+
+        let symbol = chain.callReadOnlyFn('magic-beans', 'get-symbol', [], wallet1.address);
+        symbol.result.expectOk().expectAscii("MAGIC");
+
 
     },
 });
